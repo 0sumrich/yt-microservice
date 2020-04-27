@@ -15,6 +15,19 @@ const uri = `https://www.googleapis.com/youtube/v3/videos?part=snippet,contentDe
 	","
 )}&key=${KEY}`;
 
+const getCurrentInfoCsv = async () => {
+	const res = await fetch(uri);
+	const json = await res.json();
+	const items = json.items.map((o) => ({
+		id: o.id,
+		title: o.snippet.title,
+		description: o.snippet.description,
+		publishedAt: o.snippet.publishedAt,
+	}));
+	await writeCsv(items, 'currentVideos.csv')
+};
+
+
 const rss = async () => {
 	const ytrss =
 		"https://www.youtube.com/feeds/videos.xml?channel_id=UC4SYK8Q_wNFeiNmVG3quSRw";
@@ -50,3 +63,23 @@ const rss = async () => {
 	const libs = filterer(items);
 	debugger;
 };
+
+async function getStats() {
+	const uri = `https://www.googleapis.com/youtube/v3/videos?part=snippet,contentDetails,statistics&id=${urls.join(
+		","
+	)}&key=${KEY}`;
+	const res = await fetch(uri);
+	const json = await res.json();
+	const info = json.items.map((o) => ({
+		id: o.id,
+		...o.statistics,
+		date: moment().format("YYYY-MM-DD HH:mm:ss")
+	}));
+	return info
+}
+
+module.exports = {
+	getStats,
+	getCurrentInfoCsv,
+	rss
+}
