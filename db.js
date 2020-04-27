@@ -88,7 +88,8 @@ async function insertCurrentStats() {
 			break;
 		}
 	}
-	console.log('success')
+	const rows = await db.all("select * from stats;");
+	return rows
 }
 
 async function insertCurrent(vids) {
@@ -107,4 +108,6 @@ async function insertCurrent(vids) {
 	if (rows.length === vids.length) console.log("success");
 }
 
-insertCurrentStats();
+module.exports = {
+	insertCurrentStats: insertCurrentStats
+}

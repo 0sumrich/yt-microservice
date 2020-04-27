@@ -6,9 +6,11 @@
   "author": "Richard Lynch",
   "license": "MIT",
   "dependencies": {
+    "cors": "^2.8.5",
     "csv-parse": "^4.9.0",
     "csv-writer": "^1.6.0",
     "dotenv": "^8.2.0",
+    "express": "^4.17.1",
     "moment": "^2.24.0",
     "node-fetch": "^2.6.0",
     "sqlite-async": "^1.0.12"
