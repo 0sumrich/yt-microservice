@@ -92,7 +92,7 @@ async function insertCurrentStats() {
 	return rows
 }
 
-async function insertCurrent(vids) {
+async function insertCurrentVids(vids) {
 	const sql = `INSERT INTO videos (id, title, description, publishedAt) VALUES (?, ?, ?, ?);`;
 	const db = await Database.open("./.data/main.db");
 	for (let i = 0; i < vids.length; i++) {
@@ -109,5 +109,6 @@ async function insertCurrent(vids) {
 }
 
 module.exports = {
-	insertCurrentStats: insertCurrentStats
+	insertCurrentStats: insertCurrentStats,
+	insertCurrentVids: insertCurrentVids
 }
