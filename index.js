@@ -12,6 +12,10 @@ const { getStats } = require("./ytApiCalls");
 
 app.use(cors());
 
+app.get('/', (req, res) => {
+  res.send('nothing to see here')
+})
+
 app.get("/api/getStats", async (req, res) => {
 	const stats = await getStats();
 	res.json(stats);

@@ -79,7 +79,7 @@ async function getStats() {
 }
 
 module.exports = {
-	getStats,
-	getCurrentInfoCsv,
-	rss
+	getStats: getStats,
+	getCurrentInfoCsv: getCurrentInfoCsv,
+	rss: rss
 }

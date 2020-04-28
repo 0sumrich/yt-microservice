@@ -1,7 +1,8 @@
 const fs = require("fs");
+const path = require("path")
 const moment = require("moment");
 const Database = require("sqlite-async");
-const { getStats } = require("./ytApiCAlls");
+const { getStats } = require("./ytApiCalls");
 const getCsv = require("./getCsv");
 
 const createVideosTable = async () => {
