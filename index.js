@@ -34,5 +34,6 @@ app.get("/api/insertStats", async (req, res) => {
 
 app.listen(port, () => {
 	const host = "localhost";
+  console.log(process.env)
 	console.log(`listening at http://${host}:${port}`);
 });

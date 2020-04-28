@@ -70,6 +70,7 @@ async function getStats() {
 	)}&key=${KEY}`;
 	const res = await fetch(uri);
 	const json = await res.json();
+  debugger
 	const info = json.items.map((o) => ({
 		id: o.id,
 		...o.statistics,
