@@ -3,7 +3,8 @@ const fetch = require("node-fetch");
 const fs = require("fs");
 const moment = require("moment");
 const KEY = process.env.API_KEY;
-const writeCsv = require('./writeCsv')
+const writeCsv = require("./writeCsv");
+const { currentVideos } = require("./db2");
 
 const urls = fs
 	.readFileSync("./urls.txt")
@@ -24,9 +25,8 @@ const getCurrentInfoCsv = async () => {
 		description: o.snippet.description,
 		publishedAt: o.snippet.publishedAt,
 	}));
-	await writeCsv(items, 'currentVideos.csv')
+	await writeCsv(items, "currentVideos.csv");
 };
-
 
 const rss = async () => {
 	const ytrss =
@@ -64,23 +64,57 @@ const rss = async () => {
 	debugger;
 };
 
-async function getStats() {
-	const uri = `https://www.googleapis.com/youtube/v3/videos?part=snippet,contentDetails,statistics&id=${urls.join(
+// async function getStats() {
+// 	const uri = `https://www.googleapis.com/youtube/v3/videos?part=snippet,contentDetails,statistics&id=${urls.join(
+// 		","
+// 	)}&key=${KEY}`;
+// 	const res = await fetch(uri);
+// 	const json = await res.json();
+// 	debugger;
+// 	const info = json.items.map((o) => ({
+// 		id: o.id,
+// 		...o.statistics,
+// 		date: moment().format("YYYY-MM-DD HH:mm:ss"),
+// 	}));
+// 	return info;
+// }
+
+async function getStats2(ids) {
+	const uri = `https://www.googleapis.com/youtube/v3/videos?part=snippet,contentDetails,statistics&id=${ids.join(
 		","
 	)}&key=${KEY}`;
 	const res = await fetch(uri);
 	const json = await res.json();
-  debugger
 	const info = json.items.map((o) => ({
 		id: o.id,
 		...o.statistics,
-		date: moment().format("YYYY-MM-DD HH:mm:ss")
+		date: moment().format("YYYY-MM-DD HH:mm:ss"),
 	}));
-	return info
+	return info;
+}
+
+async function getInfo(ids) {
+	if (!Array.isArray(ids)) {
+		console.log("ids param should be an array");
+		return undefined;
+	}
+	const uri = `https://www.googleapis.com/youtube/v3/videos?part=snippet,contentDetails,statistics&id=${ids.join(
+		","
+	)}&key=${KEY}`;
+	const res = await fetch(uri);
+	const json = await res.json();
+	const items = json.items.map((o) => ({
+		id: o.id,
+		title: o.snippet.title,
+		description: o.snippet.description,
+		publishedAt: o.snippet.publishedAt,
+	}));
+	return items
 }
 
 module.exports = {
-	getStats: getStats,
-	getCurrentInfoCsv: getCurrentInfoCsv,
-	rss: rss
-}
+	getCurrentInfoCsv,
+	rss,
+	getStats2,
+	getInfo,
+};
