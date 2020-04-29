@@ -3,8 +3,6 @@ const fetch = require("node-fetch");
 const fs = require("fs");
 const moment = require("moment");
 const KEY = process.env.API_KEY;
-const writeCsv = require("./writeCsv");
-const { currentVideos } = require("./db");
 
 const getRssVideos = async () => {
 	const ytrss =
