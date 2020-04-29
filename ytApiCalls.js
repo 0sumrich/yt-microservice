@@ -4,7 +4,7 @@ const fs = require("fs");
 const moment = require("moment");
 const KEY = process.env.API_KEY;
 const writeCsv = require("./writeCsv");
-const { currentVideos } = require("./db2");
+const { currentVideos } = require("./db");
 
 const getRssVideos = async () => {
 	const ytrss =
@@ -15,7 +15,7 @@ const getRssVideos = async () => {
 	return json = await res.json();
 };
 
-async function getStats2(ids) {
+async function getStats(ids) {
 	const uri = `https://www.googleapis.com/youtube/v3/videos?part=snippet,contentDetails,statistics&id=${ids.join(
 		","
 	)}&key=${KEY}`;
@@ -49,7 +49,7 @@ async function getInfo(ids) {
 }
 
 module.exports = {
-	getStats2,
+	getStats,
 	getInfo,
 	getRssVideos
 };

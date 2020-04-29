@@ -1,9 +1,9 @@
 const fs = require("fs");
-const path = require("path")
+const path = require("path");
 const moment = require("moment");
 const Database = require("sqlite-async");
-const { getStats } = require("./ytApiCalls");
 const getCsv = require("./getCsv");
+const { getStats, getInfo } = require("./ytApiCalls");
 
 const createVideosTable = async () => {
 	const sql = `
@@ -60,8 +60,27 @@ const createStatsTable = async () => {
 	}
 };
 
-async function insertCurrentStats() {
-	const stats = await getStats();
+const idsFromUrlsFile = () =>
+	fs
+		.readFileSync("./urls.txt")
+		.toString()
+		.split("\n")
+		.map((x) => x.slice("https://www.youtube.com/watch?v=".length));
+
+const currentVideos = async () => {
+	const db = await Database.open("./.data/main.db");
+	const rows = db.all("select * from videos;");
+	return rows;
+};
+
+const currentIds = async () => {
+	const vids = await currentVideos();
+	return vids.map((o) => o.id);
+};
+
+async function updateStats() {
+	const ids = await currentIds();
+	const stats = await getStats(ids);
 	const columns = [
 		"id",
 		"vidId",
@@ -81,19 +100,41 @@ async function insertCurrentStats() {
 	const db = await Database.open("./.data/main.db");
 	for (let i = 0; i < stats.length; i++) {
 		try {
-			const {id, viewCount, likeCount, dislikeCount, favoriteCount, commentCount, date} = stats[i]
-			const row = await db.run(sql, [id, viewCount, likeCount, dislikeCount, favoriteCount, commentCount, date]);
+			const {
+				id,
+				viewCount,
+				likeCount,
+				dislikeCount,
+				favoriteCount,
+				commentCount,
+				date,
+			} = stats[i];
+			const row = await db.run(sql, [
+				id,
+				viewCount,
+				likeCount,
+				dislikeCount,
+				favoriteCount,
+				commentCount,
+				date,
+			]);
 		} catch (e) {
 			console.log(stats[i]);
 			console.log(e);
 			break;
 		}
 	}
+	console.log("updated stats table");
 	const rows = await db.all("select * from stats;");
-	return rows
+	return rows;
 }
 
-async function insertCurrentVids(vids) {
+async function addNewVids(ids) {
+	if (!Array.isArray(ids)) {
+		console.log("ids param should be an array");
+		return undefined;
+	}
+	const vids = await getInfo(ids)
 	const sql = `INSERT INTO videos (id, title, description, publishedAt) VALUES (?, ?, ?, ?);`;
 	const db = await Database.open("./.data/main.db");
 	for (let i = 0; i < vids.length; i++) {
@@ -105,11 +146,20 @@ async function insertCurrentVids(vids) {
 			break;
 		}
 	}
-	const rows = await db.all("select * from videos;");
-	if (rows.length === vids.length) console.log("success");
+	const rows = await updateStats()
+	return rows;
+}
+
+async function addNewVidsFromUrlsFile(){
+	const idsInDB = await currentIds();
+	const idsToAdd = idsFromUrlsFile().filter(x => !idsInDB.includes(x))
+	await addNewVids(idsToAdd)
 }
 
 module.exports = {
-	insertCurrentStats: insertCurrentStats,
-	insertCurrentVids: insertCurrentVids
-}
+	currentVideos,
+	updateStats,
+	idsFromUrlsFile,
+	currentIds,
+	addNewVidsFromUrlsFile
+};

@@ -1,4 +1,4 @@
 (async () => {
-	const { addNewVidsFromUrlsFile } = require("./db2");
+	const { addNewVidsFromUrlsFile } = require("./db");
 	await addNewVidsFromUrlsFile();
 })();

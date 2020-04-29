@@ -1,7 +1,7 @@
 (async () => {
 	const fs = require("fs");
 	const { getRssVideos } = require("./ytApiCalls");
-	const { currentIds } = require("./db2");
+	const { currentIds } = require("./db");
 	const writeCsv = require("./writeCsv");
 	const getCsv = require("./getCsv");
 	const rssJson = await getRssVideos();
