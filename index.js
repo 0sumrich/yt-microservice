@@ -1,28 +1,40 @@
 require("dotenv").config();
 const fetch = require("node-fetch");
 const fs = require("fs");
+const path = require("path");
 const moment = require("moment");
 const express = require("express");
 const app = express();
 const cors = require("cors");
+const marked = require('marked')
 const port = process.env.PORT;
 const { insertCurrentStats, currentIds, updateStats } = require("./db");
 const { getStats } = require("./ytApiCalls");
+// const createDOMPurify = require('dompurify');
+// const { JSDOM } = require('jsdom');
+
+// const window = new JSDOM('').window;
+// const DOMPurify = createDOMPurify(window);
+
+// const clean = DOMPurify.sanitize(dirty);
 
 app.use(cors());
 
-app.get('/', (req, res) => {
-  res.send('nothing to see here')
-})
+app.get("/", (req, res) => {
+	// res.send('nothing to see here')
+	const p = path.join(__dirname, "README.md");
+	const file = fs.readFileSync(p, "utf8");
+	res.send(marked(file.toString()));
+});
 
 app.get("/api/getStats", async (req, res) => {
-	const ids = await currentIds()
+	const ids = await currentIds();
 	const stats = await getStats(ids);
 	res.json(stats);
 });
 
 app.get("/api/currentTotal", async (req, res) => {
-	const ids = await currentIds()
+	const ids = await currentIds();
 	const stats = await getStats(ids);
 	const totalViews = stats.map((o) => +o.viewCount).reduce((a, b) => a + b);
 	res.json({ totalViews });
