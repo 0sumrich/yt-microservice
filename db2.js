@@ -79,8 +79,6 @@ async function addNewVids(ids) {
 		console.log("ids param should be an array");
 		return undefined;
 	}
-	// getInfo(ids)
-	//add new vid and update the stats
 	const vids = await getInfo(ids)
 	const sql = `INSERT INTO videos (id, title, description, publishedAt) VALUES (?, ?, ?, ?);`;
 	const db = await Database.open("./.data/main.db");
