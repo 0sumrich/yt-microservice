@@ -6,7 +6,6 @@ const moment = require("moment");
 const express = require("express");
 const app = express();
 const cors = require("cors");
-const marked = require('marked')
 const port = process.env.PORT;
 const { insertCurrentStats, currentIds, updateStats } = require("./db");
 const { getStats } = require("./ytApiCalls");
@@ -19,12 +18,12 @@ const { getStats } = require("./ytApiCalls");
 // const clean = DOMPurify.sanitize(dirty);
 
 app.use(cors());
+app.use(express.static('public'))
 
 app.get("/", (req, res) => {
 	// res.send('nothing to see here')
-	const p = path.join(__dirname, "README.md");
-	const file = fs.readFileSync(p, "utf8");
-	res.send(marked(file.toString()));
+	// const html = p.toString()
+	res.sendFile('index.html');
 });
 
 app.get("/api/getStats", async (req, res) => {

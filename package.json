@@ -6,6 +6,7 @@
   "author": "Richard Lynch",
   "license": "MIT",
   "dependencies": {
+    "cheerio": "^1.0.0-rc.3",
     "cors": "^2.8.5",
     "csv-parse": "^4.9.0",
     "csv-writer": "^1.6.0",
