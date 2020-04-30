@@ -3,7 +3,7 @@ const path = require("path");
 const Database = require("sqlite-async");
 const { getStats, getInfo } = require("./ytApiCalls");
 
-const dbPath = path.join(__dirname, ".data", "main.db");
+const dbPath = path.join(__dirname, "../", ".data", "main.db");
 
 const idsFromUrlsFile = () =>
 	fs
@@ -127,7 +127,7 @@ async function historicTotals() {
 	stats.vidId=videos.id
 	group by stats.date
 	order by stats.date
-	`
+	`;
 
 	const sql = `
 	select date,
@@ -135,10 +135,10 @@ async function historicTotals() {
 	videos as videos
 	from (${inner})
 	group by date;
-	`
+	`;
 
 	const rows = await db.all(sql);
-	
+
 	return rows;
 }
 
