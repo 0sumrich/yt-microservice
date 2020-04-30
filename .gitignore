@@ -117,3 +117,4 @@ dist
 .pnp.*
 
 .data/
+.sqlite_history
