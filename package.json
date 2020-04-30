@@ -19,6 +19,7 @@
     "sqlite-async": "^1.0.12"
   },
   "scripts": {
-    "start": "node index"
+    "start": "node index",
+    "debug": "node --inspect-brk index"
   }
 }

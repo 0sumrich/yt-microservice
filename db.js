@@ -3,6 +3,8 @@ const path = require("path");
 const Database = require("sqlite-async");
 const { getStats, getInfo } = require("./ytApiCalls");
 
+const dbPath = path.join(__dirname, ".data", "main.db");
+
 const idsFromUrlsFile = () =>
 	fs
 		.readFileSync("./urls.txt")
@@ -11,7 +13,7 @@ const idsFromUrlsFile = () =>
 		.map((x) => x.slice("https://www.youtube.com/watch?v=".length));
 
 const currentVideos = async () => {
-	const db = await Database.open("./.data/main.db");
+	const db = await Database.open(dbPath);
 	const rows = db.all("select * from videos;");
 	return rows;
 };
@@ -40,7 +42,7 @@ async function updateStats() {
 		.slice(1)
 		.map((x) => "?")
 		.join(", ")});`;
-	const db = await Database.open("./.data/main.db");
+	const db = await Database.open(dbPath);
 	for (let i = 0; i < stats.length; i++) {
 		try {
 			const {
@@ -92,7 +94,7 @@ async function addNewVids(ids) {
 	}
 	const vids = await getInfo(ids);
 	const sql = `INSERT INTO videos (id, title, description, publishedAt) VALUES (?, ?, ?, ?);`;
-	const db = await Database.open("./.data/main.db");
+	const db = await Database.open(dbPath);
 	for (let i = 0; i < vids.length; i++) {
 		try {
 			const row = await db.run(sql, Object.values(vids[i]));
@@ -112,10 +114,40 @@ async function addNewVidsFromUrlsFile() {
 	await addNewVids(idsToAdd);
 }
 
+async function historicTotals() {
+	const db = await Database.open(dbPath);
+
+	const inner = `
+	select distinct
+	date(stats.date) as date,
+	sum(stats.viewCount) as "views",
+	count(videos.id) filter (where videos.publishedAt<=stats.date) + 1 as "videos"
+	from stats
+	inner join videos ON
+	stats.vidId=videos.id
+	group by stats.date
+	order by stats.date
+	`
+
+	const sql = `
+	select date,
+	max(views) as views,
+	videos as videos
+	from (${inner})
+	group by date;
+	`
+
+	const rows = await db.all(sql);
+	console.log(rows);
+	return rows;
+}
+
 module.exports = {
 	currentVideos,
 	updateStats,
 	idsFromUrlsFile,
 	currentIds,
 	addNewVidsFromUrlsFile,
+	historicTotals,
+	addNewVids,
 };
