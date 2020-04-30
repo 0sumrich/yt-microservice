@@ -116,13 +116,20 @@ async function addNewVidsFromUrlsFile() {
 
 async function historicTotals() {
 	const db = await Database.open(dbPath);
-	const sql =
-		`select date, 
-		 sum(viewCount) as "total views" 
-		 from stats
-		 group by date
-		 order by date;
-		 `;
+
+	const sql = `
+	select date, 
+	max("total views") as "views"
+	from (
+	select distinct
+	date(date) as date,
+	sum(viewCount) as "total views" 
+	from stats
+	group by date
+	order by date
+	)
+	group by date;
+	 `;
 	const rows = await db.all(sql);
 	return rows;
 }
