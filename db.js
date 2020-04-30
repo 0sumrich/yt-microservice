@@ -117,20 +117,28 @@ async function addNewVidsFromUrlsFile() {
 async function historicTotals() {
 	const db = await Database.open(dbPath);
 
-	const sql = `
-	select date, 
-	max("total views") as "views"
-	from (
+	const inner = `
 	select distinct
-	date(date) as date,
-	sum(viewCount) as "total views" 
+	date(stats.date) as date,
+	sum(stats.viewCount) as "views",
+	count(videos.id) filter (where videos.publishedAt<=stats.date) + 1 as "videos"
 	from stats
-	group by date
-	order by date
-	)
+	inner join videos ON
+	stats.vidId=videos.id
+	group by stats.date
+	order by stats.date
+	`
+
+	const sql = `
+	select date,
+	max(views) as views,
+	videos as videos
+	from (${inner})
 	group by date;
-	 `;
+	`
+
 	const rows = await db.all(sql);
+	console.log(rows);
 	return rows;
 }
 
@@ -141,4 +149,5 @@ module.exports = {
 	currentIds,
 	addNewVidsFromUrlsFile,
 	historicTotals,
+	addNewVids,
 };
