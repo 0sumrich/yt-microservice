@@ -138,7 +138,7 @@ async function historicTotals() {
 	`
 
 	const rows = await db.all(sql);
-	console.log(rows);
+	
 	return rows;
 }
 
