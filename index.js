@@ -12,8 +12,8 @@ const {
 	currentIds,
 	updateStats,
 	historicTotals,
-} = require("./db");
-const { getStats } = require("./ytApiCalls");
+} = require("./server/db");
+const { getStats } = require("./server/ytApiCalls");
 // const createDOMPurify = require('dompurify');
 // const { JSDOM } = require('jsdom');
 
