@@ -23,6 +23,7 @@
     "debug": "node --inspect-brk index",
     "checkForNew": "node --inspect-brk server/checkForNewVids",
     "makeHtml": "node server/makeHtml",
+    "addNew": "node server/addNewVideosFromUrlsFile",
     "test": "node server/run"
   }
 }
