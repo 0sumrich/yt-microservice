@@ -1,4 +1,3 @@
-const path = require("path");
 const createCsvWriter = require("csv-writer").createObjectCsvWriter;
 
 module.exports = async function writeCsv(records, fn) {
@@ -7,7 +6,7 @@ module.exports = async function writeCsv(records, fn) {
     headers.push({id: key, title: key})
   })
   const csvWriter = createCsvWriter({
-    path: path.join(__dirname, fn),
+    path: fn,
     header: headers
   });
   await csvWriter.writeRecords(records).then(() => console.log("..done"));

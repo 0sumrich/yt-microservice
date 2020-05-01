@@ -8,7 +8,7 @@
 	const rssJson = await getRssVideos();
 	const idsInDB = await currentIds();
 	const csvPath = path.join(__dirname, './newVids.csv')
-	const vidObj = ({ link, title, pubData }) => ({ link, title, pubData });
+	const vidObj = ({ link, title, pubDate }) => ({ link, title, pubDate });
 	const rssVideos = rssJson.items.map((i) => vidObj(i));
 	const idFromUrl = (str) =>
 		str.slice("https://www.youtube.com/watch?v=".length);

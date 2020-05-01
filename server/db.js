@@ -7,7 +7,7 @@ const dbPath = path.join(__dirname, "../", ".data", "main.db");
 
 const idsFromUrlsFile = () =>
 	fs
-		.readFileSync("./urls.txt")
+		.readFileSync(path.join(__dirname, "./urls.txt"))
 		.toString()
 		.split("\n")
 		.map((x) => x.slice("https://www.youtube.com/watch?v=".length));
