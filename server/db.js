@@ -115,53 +115,32 @@ async function addNewVidsFromUrlsFile() {
 }
 
 async function historicTotals() {
-	debugger;
 	const db = await Database.open(dbPath);
-
 	const inner = `
 	select distinct
-	date(stats.date) as date,
-	sum(stats.viewCount) as "views",
-	count(videos.id) filter (where videos.publishedAt<=stats.date) + 1 as "videos"
+	date(date) as date,
+	sum(viewCount) as views
 	from stats
-	inner join videos ON
-	stats.vidId=videos.id
-	group by stats.date
-	order by stats.date
+	group by date
+	order by date
 	`;
 
 	const sql = `
 	select date,
-	max(views) as views,
-	videos as videos
+	max(views) as views
 	from (${inner})
 	group by date;
 	`;
-
 	const rows = await db.all(sql);
 
-	return rows;
-}
+	const vidsSql = `select count(*) as count from videos where datetime(publishedAt)<=?;`;
+	for (let i = 0; i < rows.length; i++) {
+		const row = rows[i];
+		const query = await db.all(vidsSql, [row.date + "23:59"]);
+		row.videos = query[0].count
+	}
 
-async function historicTotals2(){
-	const db = await Database.open(dbPath)
-	const inner = `
-	select distinct
-	date,
-	date(date) as day,
-	sum(viewCount) as views,
-	from stats
-	`
-	const outer = `
-	select 
-	date,
-	day, 
-	max(views) as views, 
-	from (${inner}) 
-	group by day;
-	`
-	const rows = await db.all(outer)
-	console.log(rows)
+	console.log(rows);
 	return rows;
 }
 
@@ -172,6 +151,5 @@ module.exports = {
 	currentIds,
 	addNewVidsFromUrlsFile,
 	historicTotals,
-	historicTotals2,
 	addNewVids,
 };

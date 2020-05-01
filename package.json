@@ -21,7 +21,8 @@
   "scripts": {
     "start": "node index",
     "debug": "node --inspect-brk index",
-    "checkForNew": "node server/checkForNewVids",
-    "makeHtml": "node server/makeHtml"
+    "checkForNew": "node --inspect-brk server/checkForNewVids",
+    "makeHtml": "node server/makeHtml",
+    "test": "node --inspect-brk server/run"
   }
 }

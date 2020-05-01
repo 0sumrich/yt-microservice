@@ -10,17 +10,11 @@ const port = process.env.PORT;
 const {
 	insertCurrentStats,
 	currentIds,
+	currentVideos,
 	updateStats,
 	historicTotals,
 } = require("./server/db");
 const { getStats } = require("./server/ytApiCalls");
-// const createDOMPurify = require('dompurify');
-// const { JSDOM } = require('jsdom');
-
-// const window = new JSDOM('').window;
-// const DOMPurify = createDOMPurify(window);
-
-// const clean = DOMPurify.sanitize(dirty);
 
 app.use(cors());
 app.use(express.static("public"));
@@ -58,6 +52,11 @@ app.get("/api/insertStats", async (req, res) => {
 	const stats = await updateStats();
 	res.json(stats);
 });
+
+app.get('/api/videos', async (req, res) => {
+	const videos = await currentVideos();
+	res.json(videos)
+})
 
 app.listen(port, () => {
 	const host = process.env.HOST_ADDRESS;
