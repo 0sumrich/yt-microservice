@@ -19,6 +19,8 @@ const { getStats } = require("./server/ytApiCalls");
 app.use(cors());
 app.use(express.static("public"));
 
+// NEED A ROUTE TO ADD VIDEOS REMOTELY
+
 app.get("/", (req, res) => {
 	res.sendFile("index.html");
 });

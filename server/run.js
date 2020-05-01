@@ -1,6 +1,6 @@
 (async () => {
-	const {updateStats, historicTotals2} = require('./db')
+	const {updateStats, historicTotals} = require('./db')
 	// const stats = await updateStats();
-	const totals = await historicTotals2();
+	const totals = await historicTotals();
 	debugger;
 })();

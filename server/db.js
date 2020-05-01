@@ -2,7 +2,7 @@ const fs = require("fs");
 const path = require("path");
 const Database = require("sqlite-async");
 const { getStats, getInfo } = require("./ytApiCalls");
-
+const getCsv = require('./getCsv')
 const dbPath = path.join(__dirname, "../", ".data", "main.db");
 
 const idsFromUrlsFile = () =>
@@ -116,6 +116,7 @@ async function addNewVidsFromUrlsFile() {
 
 async function historicTotals() {
 	const db = await Database.open(dbPath);
+	const initCsv = getCsv(path.join(__dirname, 'initTotals.csv'))
 	const inner = `
 	select distinct
 	date(date) as date,
@@ -140,8 +141,8 @@ async function historicTotals() {
 		row.videos = query[0].count
 	}
 
-	console.log(rows);
-	return rows;
+	console.log([...initCsv, ...rows]);
+	return [...initCsv, ...rows];
 }
 
 module.exports = {
