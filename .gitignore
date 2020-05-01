@@ -116,5 +116,4 @@ dist
 .yarn/build-state.yml
 .pnp.*
 
-.data/
 .sqlite_history
