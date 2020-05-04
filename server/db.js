@@ -2,7 +2,7 @@ const fs = require("fs");
 const path = require("path");
 const Database = require("sqlite-async");
 const { getStats, getInfo } = require("./ytApiCalls");
-const getCsv = require('./getCsv')
+const getCsv = require("./getCsv");
 const dbPath = path.join(__dirname, "../", ".data", "main.db");
 
 const idsFromUrlsFile = () =>
@@ -92,20 +92,27 @@ async function addNewVids(ids) {
 		console.log("ids param should be an array");
 		return undefined;
 	}
-	const vids = await getInfo(ids);
-	const sql = `INSERT INTO videos (id, title, description, publishedAt) VALUES (?, ?, ?, ?);`;
-	const db = await Database.open(dbPath);
-	for (let i = 0; i < vids.length; i++) {
-		try {
-			const row = await db.run(sql, Object.values(vids[i]));
-		} catch (e) {
-			console.log(vids[i]);
-			console.log(e);
-			break;
+	try {
+		const vids = await getInfo(ids);
+		if (vids.length < 1) {
+			return { error: "not a valid id" };
 		}
+		const sql = `INSERT INTO videos (id, title, description, publishedAt) VALUES (?, ?, ?, ?);`;
+		const db = await Database.open(dbPath);
+		for (let i = 0; i < vids.length; i++) {
+			try {
+				const row = await db.run(sql, Object.values(vids[i]));
+			} catch (e) {
+				console.log(vids[i]);
+				console.log(e);
+				break;
+			}
+		}
+		const rows = await updateStats();
+		return rows;
+	} catch (e) {
+		if (e) return e;
 	}
-	const rows = await updateStats();
-	return rows;
 }
 
 async function addNewVidsFromUrlsFile() {
@@ -116,7 +123,7 @@ async function addNewVidsFromUrlsFile() {
 
 async function historicTotals() {
 	const db = await Database.open(dbPath);
-	const initCsv = getCsv(path.join(__dirname, 'initTotals.csv'))
+	const initCsv = getCsv(path.join(__dirname, "initTotals.csv"));
 	const inner = `
 	select distinct
 	date(date) as date,
@@ -138,7 +145,7 @@ async function historicTotals() {
 	for (let i = 0; i < rows.length; i++) {
 		const row = rows[i];
 		const query = await db.all(vidsSql, [row.date + "23:59"]);
-		row.videos = query[0].count
+		row.videos = query[0].count;
 	}
 
 	console.log([...initCsv, ...rows]);

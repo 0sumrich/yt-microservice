@@ -13,13 +13,19 @@ const {
 	currentVideos,
 	updateStats,
 	historicTotals,
+	addNewVids
 } = require("./server/db");
 const { getStats } = require("./server/ytApiCalls");
 
 app.use(cors());
+// app.use(express.urlencoded({extended: true}))
 app.use(express.static("public"));
 
+// TIDY UP STATS DB AND THE INSERT STATS FUNCTION SHOULD OVERWRITE PREVIOUS STATS FOR THE DAY
 // NEED A ROUTE TO ADD VIDEOS REMOTELY
+// NEED A ROUTE TO CHECK FOR NEW VIDEOS REMOTELY
+// WOULD BE COOL IF THAT ROUTE SENT ME AN EMAIL
+// even cooler if it automatically added the vid if it has barnet libraries in the text
 
 app.get("/", (req, res) => {
 	res.sendFile("index.html");
@@ -35,13 +41,14 @@ app.get("/api/currentTotal", async (req, res) => {
 	try {
 		const ids = await currentIds();
 		const stats = await getStats(ids);
-		const totalViews = stats.map((o) => +o.viewCount).reduce((a, b) => a + b);
-		res.json({totalViews});	
+		const totalViews = stats
+			.map((o) => +o.viewCount)
+			.reduce((a, b) => a + b);
+		res.json({ totalViews });
 	} catch (e) {
-		res.status(500)
-		res.end()
+		res.status(500);
+		res.end();
 	}
-	
 });
 
 app.get("/api/totals", async (req, res) => {
@@ -55,9 +62,19 @@ app.get("/api/insertStats", async (req, res) => {
 	res.json(stats);
 });
 
-app.get('/api/videos', async (req, res) => {
+app.get("/api/videos", async (req, res) => {
 	const videos = await currentVideos();
-	res.json(videos)
+	res.json(videos);
+});
+
+app.get('/api/insertVids', async(req, res) => {
+	if(!req.query.ids){
+		res.send('Route needs a query in the format /api/insertVids?ids=comma,seperated,list')
+		res.end()
+	}
+	const ids = req.query.ids.split(',')
+	const vids = await addNewVids(ids);
+	res.json(vids)
 })
 
 app.listen(port, () => {
