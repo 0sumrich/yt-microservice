@@ -1,4 +1,4 @@
-(async () => {
+module.exports = async () => {
 	const fs = require("fs");
 	const path = require("path");
 	const { getRssVideos } = require("./ytApiCalls");
@@ -25,9 +25,9 @@
 			`There are ${newVids.length} new vids to check at newVids.csv`
 		);
 		await writeCsv(newVids, csvPath);
-		return undefined;
+		return newVids;
 	} else {
 		console.log("No new vids");
 		return undefined;
 	}
-})();
+};

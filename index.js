@@ -7,13 +7,16 @@ const express = require("express");
 const app = express();
 const cors = require("cors");
 const port = process.env.PORT;
+const { render } = require("json2html");
+const email = require("./server/email");
+const checkForNewVids = require("./server/checkForNewVids");
 const {
 	insertCurrentStats,
 	currentIds,
 	currentVideos,
 	updateStats,
 	historicTotals,
-	addNewVids
+	addNewVids,
 } = require("./server/db");
 const { getStats } = require("./server/ytApiCalls");
 
@@ -67,15 +70,30 @@ app.get("/api/videos", async (req, res) => {
 	res.json(videos);
 });
 
-app.get('/api/insertVids', async(req, res) => {
-	if(!req.query.ids){
-		res.send('Route needs a query in the format /api/insertVids?ids=comma,seperated,list')
-		res.end()
+app.get("/api/insertVids", async (req, res) => {
+	if (!req.query.ids) {
+		res.send(
+			"Route needs a query in the format /api/insertVids?ids=comma,seperated,list"
+		);
+		res.end();
 	}
-	const ids = req.query.ids.split(',')
+	const ids = req.query.ids.split(",");
 	const vids = await addNewVids(ids);
-	res.json(vids)
-})
+	res.json(vids);
+});
+
+app.get("/api/checkForNewVids", async (req, res) => {
+	const newVids = await checkForNewVids();
+	if(newVids){
+		const html = render(newVids);
+		const subject = "New videos";
+		const info = await email({ subject, html });
+		res.json(newVids)	
+	}else{
+		res.json([])
+	}
+	// require('json2html').render(json, options)/
+});
 
 app.listen(port, () => {
 	const host = process.env.HOST_ADDRESS;
