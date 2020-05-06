@@ -1,10 +1,9 @@
 const nodemailer = require("nodemailer");
 const { promisify } = require("util");
 const transporter = nodemailer.createTransport({
-  host: "smtp.gmail.com",
+  service: "gmail",
   port: 465,
   secure: true,
-  service: "gmail",
   auth: {
     user: process.env.FROM,
     pass: process.env.EM_PW
