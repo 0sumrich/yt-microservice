@@ -23,7 +23,6 @@
   "scripts": {
     "start": "node index",
     "debug": "node --inspect-brk index",
-    "checkForNew": "node server/checkForNewVids",
     "makeHtml": "node server/makeHtml",
     "addNew": "node server/addNewVideosFromUrlsFile",
     "test": "node --inspect-brk server/run"
