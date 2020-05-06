@@ -1,10 +1,9 @@
-require("dotenv").config();
 const nodemailer = require("nodemailer");
-const {promisify} = require('util')
+const { promisify } = require("util");
 const transporter = nodemailer.createTransport({
 	service: "gmail",
-  port: 465,
-  secure: true,
+	port: 465,
+	secure: true,
 	auth: {
 		user: process.env.FROM,
 		pass: process.env.EM_PW,
@@ -18,17 +17,15 @@ async function sendMail(options) {
 		to: toEmail ? toEmail : process.env.TO, // list of receivers
 		subject, // Subject line
 		// text,
-		html
+		html,
 	};
 	try {
-		const info = await transporter.sendMail(mailOptions)	
-		return info
-	}catch(e){
-		console.log(e)
+		const info = await transporter.sendMail(mailOptions);
+		return info;
+	} catch (e) {
+		console.log(e);
 		debugger;
 	}
-	
-	
 }
 
-module.exports = sendMail
+module.exports = sendMail;
