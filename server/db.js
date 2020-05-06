@@ -152,6 +152,41 @@ async function historicTotals() {
 	return [...initCsv, ...rows];
 }
 
+async function statsTidy(){
+	const db = await Database.open(dbPath);
+	const inner = `
+	select 
+	id,
+	vidId,
+	date,
+	date(date) as sdate,
+	viewCount
+	from stats
+	group by date, vidId
+	order by id, date
+	`;
+
+	const sql = `
+	delete from stats where id not in (
+
+	select id from (
+	select
+	id,
+	vidId,
+	max(date),
+	sdate,
+	viewCount
+	from (${inner})
+	group by sdate, vidId
+	order by id
+	)
+
+	);
+	`;
+	const rows = await db.all(sql)
+	debugger;
+}
+
 module.exports = {
 	currentVideos,
 	updateStats,
@@ -160,4 +195,5 @@ module.exports = {
 	addNewVidsFromUrlsFile,
 	historicTotals,
 	addNewVids,
+	statsTidy
 };
