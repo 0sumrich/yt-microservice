@@ -183,8 +183,12 @@ async function statsTidy(){
 
 	);
 	`;
-	const rows = await db.all(sql)
-	debugger;
+	await db.run(sql)
+	const rows = await db.all('select * from stats;')
+	for (let i=0;i<rows.length;i++){
+		console.log(rows[i])
+	}
+	return undefined;
 }
 
 module.exports = {
