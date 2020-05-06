@@ -2,7 +2,7 @@ require("dotenv").config();
 const fetch = require("node-fetch");
 const fs = require("fs");
 const moment = require("moment");
-const KEY = process.env.API_KEY;
+const KEY = process.env.YT_API_KEY;
 
 const getRssVideos = async () => {
 	const ytrss =
