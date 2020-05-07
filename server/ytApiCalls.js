@@ -22,7 +22,7 @@ async function getStats(ids) {
 	const info = json.items.map((o) => ({
 		id: o.id,
 		...o.statistics,
-		date: moment().format("YYYY-MM-DD HH:mm:ss"),
+		date: moment().format("YYYY-MM-DD"),
 	}));
 	return info;
 }

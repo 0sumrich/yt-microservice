@@ -24,8 +24,7 @@ const currentIds = async () => {
 };
 
 async function updateStats() {
-	const ids = await currentIds();
-	const stats = await getStats(ids);
+	const db = await Database.open(dbPath);
 	const columns = [
 		"id",
 		"vidId",
@@ -36,41 +35,85 @@ async function updateStats() {
 		"commentCount",
 		"date",
 	];
-	const sql = `INSERT INTO stats (${columns
-		.slice(1)
-		.join(", ")}) VALUES (${columns
-		.slice(1)
-		.map((x) => "?")
-		.join(", ")});`;
-	const db = await Database.open(dbPath);
-	for (let i = 0; i < stats.length; i++) {
-		try {
+	const ids = await currentIds();
+	const stats = await getStats(ids);
+	const today = stats[0].date;
+	const checkQuery = await db.all("select vidId from stats where date=?", [
+		today,
+	]);
+	const exists = checkQuery.length > 0;
+	// if exists update else insert
+	let changes = 0;
+	if (exists) {
+		const vidIds = checkQuery.map((o) => o.vidId);
+		const sql = `
+		UPDATE stats 
+		SET viewCount=$viewCount,
+		likeCount=$likeCount,
+		dislikeCount=$dislikeCount,
+		favoriteCount=$favoriteCount,
+		commentCount=$commentCount
+		WHERE vidId=$vidId AND date=$date;
+		`;
+		for (let i = 0; i < vidIds.length; i++) {
+			const vidId = vidIds[i];
 			const {
-				id,
 				viewCount,
 				likeCount,
 				dislikeCount,
 				favoriteCount,
 				commentCount,
-				date,
-			} = stats[i];
-			const row = await db.run(sql, [
-				id,
-				viewCount,
-				likeCount,
-				dislikeCount,
-				favoriteCount,
-				commentCount,
-				date,
-			]);
-		} catch (e) {
-			console.log(stats[i]);
-			console.log(e);
-			break;
+			} = stats.filter((o) => o.id === vidId)[0];
+			const params = {
+				$viewCount: viewCount,
+				$likeCount: likeCount,
+				$dislikeCount: dislikeCount,
+				$favoriteCount: favoriteCount,
+				$commentCount: commentCount,
+				$vidId: vidId,
+				$date: today,
+			};
+			const run = await db.run(sql, params);
+			changes += run.changes;
+		}
+	} else {
+		const sql = `INSERT INTO stats (${columns
+			.slice(1)
+			.join(", ")}) VALUES (${columns
+			.slice(1)
+			.map((x) => "?")
+			.join(", ")});`;
+		const db = await Database.open(dbPath);
+		for (let i = 0; i < stats.length; i++) {
+			try {
+				const {
+					id,
+					viewCount,
+					likeCount,
+					dislikeCount,
+					favoriteCount,
+					commentCount,
+					date,
+				} = stats[i];
+				const row = await db.run(sql, [
+					id,
+					viewCount,
+					likeCount,
+					dislikeCount,
+					favoriteCount,
+					commentCount,
+					date,
+				]);
+				changes += row.changes;
+			} catch (e) {
+				console.log(stats[i]);
+				console.log(e);
+				break;
+			}
 		}
 	}
-	console.log("updated stats table");
-	const returnSql = `SELECT stats.date, 
+	console.log(`rows changed: ${changes}`);
+	const returnSql = `SELECT stats.date,
 				    videos.id,
 				    videos.title,
 					videos.description,
@@ -81,7 +124,7 @@ async function updateStats() {
 					stats.favoriteCount,
 					stats.commentCount
 					FROM videos
-					INNER JOIN stats 
+					INNER JOIN stats
 				    ON stats.vidId = videos.id;`;
 	const rows = await db.all(returnSql);
 	return rows;
@@ -124,19 +167,11 @@ async function addNewVidsFromUrlsFile() {
 async function historicTotals() {
 	const db = await Database.open(dbPath);
 	const initCsv = getCsv(path.join(__dirname, "initTotals.csv"));
-	const inner = `
-	select distinct
-	date(date) as date,
-	sum(viewCount) as views
-	from stats
-	group by date
-	order by date
-	`;
 
 	const sql = `
 	select date,
-	max(views) as views
-	from (${inner})
+	sum(viewCount) as views
+	from stats
 	group by date;
 	`;
 	const rows = await db.all(sql);
@@ -152,7 +187,7 @@ async function historicTotals() {
 	return [...initCsv, ...rows];
 }
 
-async function statsTidy(){
+async function statsTidy() {
 	const db = await Database.open(dbPath);
 	const inner = `
 	select 
@@ -183,12 +218,33 @@ async function statsTidy(){
 
 	);
 	`;
-	await db.run(sql)
-	const rows = await db.all('select * from stats;')
-	for (let i=0;i<rows.length;i++){
-		console.log(rows[i])
+	await db.run(sql);
+	const rows = await db.all("select * from stats;");
+	for (let i = 0; i < rows.length; i++) {
+		console.log(rows[i]);
 	}
 	return undefined;
+}
+
+async function fixDates() {
+	const db = await Database.open(dbPath);
+	const ids = await db.all("select id from stats;");
+	const sql = "UPDATE stats SET date=? WHERE id=?;";
+	let changes = 0;
+	for (let i = 0; i < ids.length; i++) {
+		const id = ids[i].id;
+		const dateQuery = await db.all(
+			"select date(date) as d from stats where id=?;",
+			[id]
+		);
+		const newDate = dateQuery[0].d;
+		const run = await db.run(sql, [newDate, id]);
+		changes += run.changes;
+		// UPDATE table_name SET column_name=new_value [, ...] WHERE expression
+	}
+	console.log(`changed ${changes} row(s)`);
+	const checkRows = await db.all("select * from stats;");
+	debugger;
 }
 
 module.exports = {
@@ -199,5 +255,6 @@ module.exports = {
 	addNewVidsFromUrlsFile,
 	historicTotals,
 	addNewVids,
-	statsTidy
+	statsTidy,
+	fixDates,
 };
