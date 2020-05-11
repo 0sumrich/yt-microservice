@@ -78,11 +78,8 @@ app.get("/api/insertVids", async (req, res) => {
 });
 
 app.get("/api/checkForNewVids", async (req, res) => {
-	// change checkForNewVids so it checks the newvids table and the vids table for new videos
-	// if new video - email it
-	// if email successful store it in newvids
 	const newVids = await checkForNewVids();
-	if (newVids) {
+	if (newVids.length > 0) {
 		try {
 			const html = render(newVids);
 			const subject = "New videos";
@@ -98,6 +95,10 @@ app.get("/api/checkForNewVids", async (req, res) => {
 	} else {
 		res.json([]);
 	}
+});
+
+app.get("/api/dl", (req, res) => {
+	res.download(path.join(__dirname, ".data/main.db"));
 });
 
 app.listen(port, () => {
