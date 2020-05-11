@@ -11,7 +11,7 @@ const transporter = nodemailer.createTransport({
 });
 
 async function sendMail(options) {
-	const { fromEmail, toEmail, subject, text, html } = options;
+	const { fromEmail, toEmail, subject, html } = options;
 	const mailOptions = {
 		from: fromEmail ? fromEmail : process.env.FROM, // sender address
 		to: toEmail ? toEmail : process.env.TO, // list of receivers

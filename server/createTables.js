@@ -1,4 +1,23 @@
+const path = require('path')
 const Database = require("sqlite-async");
+const dbPath = path.join(__dirname, "../", ".data", "main.db");
+const createNewVidsTable = async () => {
+	const sql = `
+	CREATE TABLE IF NOT EXISTS newvideos (
+	 id TEXT PRIMARY KEY,
+	 title TEXT,
+	 description TEXT,
+	 publishedAt TEXT
+	);`;
+	try {
+		const db = await Database.open(dbPath);
+		const run = await db.run(sql);
+		if (run) return true;
+	} catch (e) {
+		console.err(e);
+		return false;
+	}
+};
 
 const createVideosTable = async () => {
 	const sql = `
@@ -10,7 +29,7 @@ const createVideosTable = async () => {
 	);
 	`;
 	try {
-		const db = await Database.open("./.data/main.db");
+		const db = await Database.open(dbPath);
 		const run = await db.run(sql);
 		if (run) return true;
 	} catch (e) {
@@ -45,7 +64,7 @@ const createStatsTable = async () => {
 	);
 	`;
 	try {
-		const db = await Database.open("./.data/main.db");
+		const db = await Database.open(dbPath);
 		const run = await db.run(sql);
 		if (run) return true;
 	} catch (e) {
@@ -54,3 +73,5 @@ const createStatsTable = async () => {
 		return false;
 	}
 };
+
+createNewVidsTable()

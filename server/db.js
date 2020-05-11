@@ -1,7 +1,7 @@
 const fs = require("fs");
 const path = require("path");
 const Database = require("sqlite-async");
-const { getStats, getInfo } = require("./ytApiCalls");
+const { getStats, getInfo, getRssVideos } = require("./ytApiCalls");
 const getCsv = require("./getCsv");
 const dbPath = path.join(__dirname, "../", ".data", "main.db");
 
@@ -247,6 +247,52 @@ async function fixDates() {
 	debugger;
 }
 
+async function insertToNewVids(arr) {
+	const db = await Database.open(dbPath);
+	const idFromUrl = (str) =>
+		str.slice("https://www.youtube.com/watch?v=".length);
+	let changes = 0;
+	const sql = `
+	INSERT INTO newvideos (id, title, description, publishedAt) values (?,?,?,?)
+	`;
+	for (let i = 0; i < arr.length; i++) {
+		const { link, title, pubDate, description } = arr[i];
+		const id = idFromUrl(link);
+		const run = await db.run(sql, [id, title, description, pubDate]);
+		changes += run.changes;
+	}
+	console.log(`${changes} row(s) changed`);
+}
+
+async function currNewVideosIds() {
+	const db = await Database.open(dbPath);
+	const sql = `
+	SELECT id FROM newvideos;
+	`;
+	const query = await db.all(sql);
+	return query.map((o) => o.id);
+}
+
+async function checkForNewVids() {
+	const fs = require("fs");
+	const path = require("path");
+	const { getRssVideos } = require("./ytApiCalls");
+	const rssJson = await getRssVideos();
+	const ourIds = await currentIds();
+	const newVidsIds = await currNewVideosIds();
+	const allCurrIds = [...ourIds, ...newVidsIds];
+	const vidObj = ({ link, title, description, pubDate }) => ({
+		link,
+		title,
+		description,
+		pubDate,
+	});
+	const rssVideos = rssJson.items.map((i) => vidObj(i));
+	const idFromUrl = (str) =>
+		str.slice("https://www.youtube.com/watch?v=".length);
+	return rssVideos.filter((o) => !allCurrIds.includes(idFromUrl(o.link)));
+}
+
 module.exports = {
 	currentVideos,
 	updateStats,
@@ -257,4 +303,6 @@ module.exports = {
 	addNewVids,
 	statsTidy,
 	fixDates,
+	insertToNewVids,
+	checkForNewVids,
 };
