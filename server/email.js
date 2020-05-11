@@ -1,5 +1,4 @@
 const nodemailer = require("nodemailer");
-const { promisify } = require("util");
 const transporter = nodemailer.createTransport({
 	service: "gmail",
 	port: 465,
