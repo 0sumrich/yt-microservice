@@ -3,6 +3,11 @@ const fetch = require("node-fetch");
 const fs = require("fs");
 const moment = require("moment");
 const KEY = process.env.YT_API_KEY;
+const Parser = require('rss-parser');
+const parser = new Parser();
+
+// TRY THIS
+// https://www.npmjs.com/package/rss-to-json
 
 const getRssVideos = async () => {
 	const ytrss =
@@ -10,7 +15,9 @@ const getRssVideos = async () => {
 	const res = await fetch(
 		`https://api.rss2json.com/v1/api.json?rss_url=${ytrss}`
 	);
-	return json = await res.json();
+	const json = await res.json();
+	const feed = await parser.parseURL(ytrss);
+	return json
 };
 
 async function getStats(ids) {
