@@ -25,12 +25,6 @@ app.use(cors());
 // app.use(express.urlencoded({extended: true}))
 app.use(express.static("public"));
 
-// TIDY UP STATS DB AND THE INSERT STATS FUNCTION SHOULD OVERWRITE PREVIOUS STATS FOR THE DAY
-// NEED A ROUTE TO ADD VIDEOS REMOTELY
-// NEED A ROUTE TO CHECK FOR NEW VIDEOS REMOTELY
-// WOULD BE COOL IF THAT ROUTE SENT ME AN EMAIL
-// even cooler if it automatically added the vid if it has barnet libraries in the text
-
 app.get("/", (req, res) => {
 	res.sendFile("index.html");
 });
@@ -84,19 +78,27 @@ app.get("/api/insertVids", async (req, res) => {
 });
 
 app.get("/api/checkForNewVids", async (req, res) => {
-	// change checkForNewVids so it checks the newvids table and the vids table for new videos
-	// if new video - email it
-	// if email successful store it in newvids
 	const newVids = await checkForNewVids();
 	if (newVids.length > 0) {
-		const html = render(newVids);
-		const subject = "New videos";
-		const info = await email({ subject, html });
-		res.json(newVids);
+		try {
+			const html = render(newVids);
+			const subject = "New videos";
+			const info = await email({ subject, html });
+			await insertToNewVids(newVids);
+			res.json(newVids);
+		} catch (e) {
+			if (e) {
+				res.status(500);
+				res.json({ error: "something went wrong with the email" });
+			}
+		}
 	} else {
 		res.json([]);
 	}
-	// require('json2html').render(json, options)/
+});
+
+app.get("/api/dl", (req, res) => {
+	res.download(path.join(__dirname, ".data/main.db"));
 });
 
 app.listen(port, () => {
