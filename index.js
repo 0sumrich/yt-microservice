@@ -18,6 +18,7 @@ const {
 	addNewVids,
 	checkForNewVids,
 	insertToNewVids,
+	filteredRss,
 } = require("./server/db");
 const { getStats } = require("./server/ytApiCalls");
 
@@ -27,6 +28,15 @@ app.use(express.static("public"));
 
 app.get("/", (req, res) => {
 	res.sendFile("index.html");
+});
+
+app.get("/api/barnetrss", async (req, res) => {
+	try {
+		const rss = await filteredRss();
+		res.json(rss);
+	} catch (e) {
+		res.status(500);
+	}
 });
 
 app.get("/api/getStats", async (req, res) => {

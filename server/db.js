@@ -5,12 +5,7 @@ const { getStats, getInfo, getRssVideos } = require("./ytApiCalls");
 const getCsv = require("./getCsv");
 const dbPath = path.join(__dirname, "../", ".data", "main.db");
 
-const idsFromUrlsFile = () =>
-	fs
-		.readFileSync(path.join(__dirname, "./urls.txt"))
-		.toString()
-		.split("\n")
-		.map((x) => x.slice("https://www.youtube.com/watch?v=".length));
+const idFromUrl = (str) => str.slice("https://www.youtube.com/watch?v=".length);
 
 const currentVideos = async () => {
 	const db = await Database.open(dbPath);
@@ -21,6 +16,19 @@ const currentVideos = async () => {
 const currentIds = async () => {
 	const vids = await currentVideos();
 	return vids.map((o) => o.id);
+};
+
+const filteredRss = async () => {
+	const fullRss = await getRssVideos();
+	const currIds = await currentIds();
+	const stringFilterer = (s) => s.toLowerCase().includes("libraries");
+	const idFilterer = (id) => currIds.includes(id);
+	const items = fullRss.items.filter(
+		(o) => stringFilterer(o.title) || idFilterer(idFromUrl(o.link))
+	);
+	fullRss.items = items
+	fullRss.title = 'Barnet Council - Libraries'
+	return fullRss
 };
 
 async function updateStats() {
@@ -158,12 +166,6 @@ async function addNewVids(ids) {
 	}
 }
 
-async function addNewVidsFromUrlsFile() {
-	const idsInDB = await currentIds();
-	const idsToAdd = idsFromUrlsFile().filter((x) => !idsInDB.includes(x));
-	await addNewVids(idsToAdd);
-}
-
 async function historicTotals() {
 	const db = await Database.open(dbPath);
 	const initCsv = getCsv(path.join(__dirname, "initTotals.csv"));
@@ -249,8 +251,6 @@ async function fixDates() {
 
 async function insertToNewVids(arr) {
 	const db = await Database.open(dbPath);
-	const idFromUrl = (str) =>
-		str.slice("https://www.youtube.com/watch?v=".length);
 	let changes = 0;
 	const sql = `
 	INSERT INTO newvideos (id, title, publishedAt) values (?,?,?)
@@ -287,21 +287,18 @@ async function checkForNewVids() {
 		pubDate,
 	});
 	const rssVideos = rssJson.items.map((i) => vidObj(i));
-	const idFromUrl = (str) =>
-		str.slice("https://www.youtube.com/watch?v=".length);
 	return rssVideos.filter((o) => !allCurrIds.includes(idFromUrl(o.link)));
 }
 
 module.exports = {
 	currentVideos,
 	updateStats,
-	idsFromUrlsFile,
 	currentIds,
-	addNewVidsFromUrlsFile,
 	historicTotals,
 	addNewVids,
 	statsTidy,
 	fixDates,
 	insertToNewVids,
 	checkForNewVids,
+	filteredRss,
 };
