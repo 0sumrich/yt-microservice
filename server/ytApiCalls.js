@@ -12,12 +12,8 @@ const parser = new Parser();
 const getRssVideos = async () => {
 	const ytrss =
 		"https://www.youtube.com/feeds/videos.xml?channel_id=UC4SYK8Q_wNFeiNmVG3quSRw";
-	const res = await fetch(
-		`https://api.rss2json.com/v1/api.json?rss_url=${ytrss}`
-	);
-	const json = await res.json();
 	const feed = await parser.parseURL(ytrss);
-	return json
+	return feed
 };
 
 async function getStats(ids) {

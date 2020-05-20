@@ -253,12 +253,12 @@ async function insertToNewVids(arr) {
 		str.slice("https://www.youtube.com/watch?v=".length);
 	let changes = 0;
 	const sql = `
-	INSERT INTO newvideos (id, title, description, publishedAt) values (?,?,?,?)
+	INSERT INTO newvideos (id, title, publishedAt) values (?,?,?)
 	`;
 	for (let i = 0; i < arr.length; i++) {
 		const { link, title, pubDate, description } = arr[i];
 		const id = idFromUrl(link);
-		const run = await db.run(sql, [id, title, description, pubDate]);
+		const run = await db.run(sql, [id, title, pubDate]);
 		changes += run.changes;
 	}
 	console.log(`${changes} row(s) changed`);
@@ -281,10 +281,9 @@ async function checkForNewVids() {
 	const ourIds = await currentIds();
 	const newVidsIds = await currNewVideosIds();
 	const allCurrIds = [...ourIds, ...newVidsIds];
-	const vidObj = ({ link, title, description, pubDate }) => ({
+	const vidObj = ({ link, title, pubDate }) => ({
 		link,
 		title,
-		description,
 		pubDate,
 	});
 	const rssVideos = rssJson.items.map((i) => vidObj(i));
