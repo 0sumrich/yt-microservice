@@ -107,6 +107,19 @@ app.get("/api/checkForNewVids", async (req, res) => {
 	}
 });
 
+app.get('/api/testEmail', async (req, res) => {
+	try {
+		const info = await email({ subject: 'test', html: '<p>testing</p>' })
+		res.status(200)
+		res.send('sent email successfully')
+	} catch (e) {
+		if (e) {
+			res.status(500);
+			res.json({ error: "something went wrong with the email" });
+		}
+	}
+})
+
 app.get("/api/dl", (req, res) => {
 	res.download(path.join(__dirname, ".data/main.db"));
 });
