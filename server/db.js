@@ -84,44 +84,43 @@ async function updateStats() {
 			const run = await db.run(sql, params);
 			changes += run.changes;
 		}
-		if (ids.length > vidIds.length) {
-			const newIds = ids.filter(x => !vidIds.includes(x))
-			debugger
-			const sql = `INSERT INTO stats (${columns
-				.slice(1)
-				.join(", ")}) VALUES (${columns
-					.slice(1)
-					.map((x) => "?")
-					.join(", ")});`;
-			const db = await Database.open(dbPath);
-			for (let i = 0; i < stats.length; i++) {
-				const {
-					id,
-					viewCount,
-					likeCount,
-					dislikeCount,
-					favoriteCount,
-					commentCount,
-					date,
-				} = stats[i];
-				try {
-					const row = await db.run(sql, [
-						id,
-						viewCount,
-						likeCount,
-						dislikeCount,
-						favoriteCount,
-						commentCount,
-						date,
-					]);
-					changes += row.changes;
-				} catch (e) {
-					console.log(stats[i]);
-					console.log(e);
-					break;
-				}
-			}
-		}
+		// if (ids.length > vidIds.length) {
+		// 	const newIds = ids.filter(x => !vidIds.includes(x))
+		// 	const sql = `INSERT INTO stats (${columns
+		// 		.slice(1)
+		// 		.join(", ")}) VALUES (${columns
+		// 			.slice(1)
+		// 			.map((x) => "?")
+		// 			.join(", ")});`;
+		// 	const db = await Database.open(dbPath);
+		// 	for (let i = 0; i < stats.length; i++) {
+		// 		const {
+		// 			id,
+		// 			viewCount,
+		// 			likeCount,
+		// 			dislikeCount,
+		// 			favoriteCount,
+		// 			commentCount,
+		// 			date,
+		// 		} = stats[i];
+		// 		try {
+		// 			const row = await db.run(sql, [
+		// 				id,
+		// 				viewCount,
+		// 				likeCount,
+		// 				dislikeCount,
+		// 				favoriteCount,
+		// 				commentCount,
+		// 				date,
+		// 			]);
+		// 			changes += row.changes;
+		// 		} catch (e) {
+		// 			console.log(stats[i]);
+		// 			console.log(e);
+		// 			break;
+		// 		}
+		// 	}
+		// }
 	} else {
 		const sql = `INSERT INTO stats (${columns
 			.slice(1)
@@ -192,13 +191,11 @@ async function addNewVids(ids) {
 			try {
 				const row = await db.run(sql, Object.values(vids[i]));
 			} catch (e) {
-				console.log(vids[i]);
-				console.log(e);
-				break;
+				return {notAdded: vids[i], error: e}
 			}
 		}
 		const rows = await updateStats();
-		return rows;
+		return vids;
 	} catch (e) {
 		if (e) return e;
 	}
