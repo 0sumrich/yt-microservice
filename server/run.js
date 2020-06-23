@@ -1,6 +1,7 @@
 (async () => {
-	require("dotenv").config();
-	const email = require('./email')
-	const info = await email({ subject: 'test', text: 'testing testing' })
-	console.log(info)
+	const { updateStats, historicTotals } = require('./db')
+	const stats = await updateStats();
+	const check = [...new Set(stats.map(o => o.id))].includes("rcoDHcJZqoA")
+	debugger;
+	const totals = await historicTotals();
 })();
