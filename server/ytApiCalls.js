@@ -31,38 +31,44 @@ const getRssVideos = async () => {
 };
 
 async function getStats(ids) {
-	const uri = `https://www.googleapis.com/youtube/v3/videos?part=snippet,contentDetails,statistics&id=${ids.join(
-		","
-	)}&key=${KEY}`
-	const res = await fetch(uri)
-	const json = await res.json()
-	const info = json.items.map((o) => ({
-		id: o.id,
-		...o.statistics,
-		date: moment().format("YYYY-MM-DD"),
-	}));
+	const info = []
+	for (let i = 0; i < ids.length; i++) {
+		const id = ids[i]
+		const uri = `https://www.googleapis.com/youtube/v3/videos?part=snippet,contentDetails,statistics&id=${id}&key=${KEY}`
+		const res = await fetch(uri)
+		const json = await res.json()
+		const o = json.items[0]
+		const item = {
+			id: o.id,
+			...o.statistics,
+			date: moment().format('YYYY-MM-DD')
+		}
+		info.push(item)
+	}
 	return info;
 }
-
-// [  "kPTZKphtYWk",  "thhzQyUo2vs",  "RavYQP5GuuE",  "fMaCMvxaeIo"]
 
 async function getInfo(ids) {
 	if (!Array.isArray(ids)) {
 		console.log("ids param should be an array");
 		return undefined;
 	}
-	const uri = `https://www.googleapis.com/youtube/v3/videos?part=snippet,contentDetails,statistics&id=${ids.join(
-		","
-	)}&key=${KEY}`;
-	const res = await fetch(uri);
-	const json = await res.json();
-	const items = json.items.map((o) => ({
-		id: o.id,
-		title: o.snippet.title,
-		description: o.snippet.description,
-		publishedAt: o.snippet.publishedAt,
-	}));
-	return items
+	const info = []
+	for (let i = 0; i < ids.length; i++) {
+		const id = ids[i]
+		const uri = `https://www.googleapis.com/youtube/v3/videos?part=snippet,contentDetails,statistics&id=${id}&key=${KEY}`;
+		const res = await fetch(uri);
+		const json = await res.json();
+		const o = json.items[0];
+		const item = {
+			id: o.id,
+			title: o.snippet.title,
+			description: o.snippet.description,
+			publishedAt: o.snippet.publishedAt,
+		}
+		info.push(item)
+	}
+	return info
 }
 
 module.exports = {

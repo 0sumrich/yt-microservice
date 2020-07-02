@@ -1,7 +1,15 @@
 (async () => {
-	const { updateStats, historicTotals } = require('./db')
-	const stats = await updateStats();
-	const check = [...new Set(stats.map(o => o.id))].includes("rcoDHcJZqoA")
-	debugger;
-	const totals = await historicTotals();
+	const idFromUrl = (str) => str.slice("https://www.youtube.com/watch?v=".length);
+	const { currentIds, addNewVids } = require('./db')
+	const { getRssVideos } = require('./ytApiCalls')
+	const fs = require('fs')
+	const path = require('path')
+	const writeCsv = require('./writeCsv')
+	const getCsv = require('./getCsv')
+	// const fullRss = await getRssVideos();
+	// const currIds = await currentIds();
+	// const vidsWeNeed = fullRss.items.filter(o => !currIds.includes(idFromUrl(o.link)))
+	// await writeCsv(vidsWeNeed, path.join(__dirname, 'toWrite.csv'))
+	const ids = getCsv(path.join(__dirname, 'toWrite.csv')).map(o => idFromUrl(o.link))
+	const newVids = await addNewVids(ids)
 })();

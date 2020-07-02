@@ -84,43 +84,6 @@ async function updateStats() {
 			const run = await db.run(sql, params);
 			changes += run.changes;
 		}
-		// if (ids.length > vidIds.length) {
-		// 	const newIds = ids.filter(x => !vidIds.includes(x))
-		// 	const sql = `INSERT INTO stats (${columns
-		// 		.slice(1)
-		// 		.join(", ")}) VALUES (${columns
-		// 			.slice(1)
-		// 			.map((x) => "?")
-		// 			.join(", ")});`;
-		// 	const db = await Database.open(dbPath);
-		// 	for (let i = 0; i < stats.length; i++) {
-		// 		const {
-		// 			id,
-		// 			viewCount,
-		// 			likeCount,
-		// 			dislikeCount,
-		// 			favoriteCount,
-		// 			commentCount,
-		// 			date,
-		// 		} = stats[i];
-		// 		try {
-		// 			const row = await db.run(sql, [
-		// 				id,
-		// 				viewCount,
-		// 				likeCount,
-		// 				dislikeCount,
-		// 				favoriteCount,
-		// 				commentCount,
-		// 				date,
-		// 			]);
-		// 			changes += row.changes;
-		// 		} catch (e) {
-		// 			console.log(stats[i]);
-		// 			console.log(e);
-		// 			break;
-		// 		}
-		// 	}
-		// }
 	} else {
 		const sql = `INSERT INTO stats (${columns
 			.slice(1)
