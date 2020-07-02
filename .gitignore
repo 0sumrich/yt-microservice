@@ -119,3 +119,4 @@ dist
 .pnp.*
 
 .sqlite_history
+package-lock.json

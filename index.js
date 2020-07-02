@@ -84,7 +84,7 @@ app.get("/api/insertVids", async (req, res) => {
 	}
 	const ids = req.query.ids.split(",");
 	const vids = await addNewVids(ids);
-	res.json({newVids: vids});
+	res.json({ newVids: vids });
 });
 
 app.get("/api/checkForNewVids", async (req, res) => {
