@@ -37,6 +37,9 @@ async function getStats(ids) {
 		const uri = `https://www.googleapis.com/youtube/v3/videos?part=snippet,contentDetails,statistics&id=${id}&key=${KEY}`
 		const res = await fetch(uri)
 		const json = await res.json()
+		if(json.items.length<1){
+			continue;
+		}
 		const o = json.items[0]
 		const item = {
 			id: o.id,
