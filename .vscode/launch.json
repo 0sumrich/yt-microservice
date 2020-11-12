@@ -5,10 +5,19 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "Launch curr file",
+            "program": "${file}",
+            "request": "launch",
+            "skipFiles": [
+                "<node_internals>/**"
+            ],
+            "type": "pwa-node"
+        },
+        {
             "command": "npm test",
             "name": "Run npm test",
             "request": "launch",
             "type": "node-terminal"
-        }
+        },
     ]
 }

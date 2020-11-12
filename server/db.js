@@ -3,6 +3,7 @@ const path = require("path");
 const Database = require("sqlite-async");
 const { getStats, getInfo, getRssVideos } = require("./ytApiCalls");
 const getCsv = require("./getCsv");
+const { AsyncResource } = require("async_hooks");
 const dbPath = path.join(__dirname, "../", ".data", "main.db");
 
 const idFromUrl = (str) => str.slice("https://www.youtube.com/watch?v=".length);
@@ -259,6 +260,11 @@ async function insertToNewVids(arr) {
 		changes += run.changes;
 	}
 	console.log(`${changes} row(s) changed`);
+}
+
+async function insertToPlaylists(arr){
+	const db = await Database.open(dbPath)
+	const sql = `INSERT INTO playlists`
 }
 
 async function currNewVideosIds() {

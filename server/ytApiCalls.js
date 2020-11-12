@@ -84,10 +84,12 @@ async function getInfo(ids) {
 async function getPlaylists() {
 	const channelId = 'UC4SYK8Q_wNFeiNmVG3quSRw'
 	const base = 'https://www.googleapis.com/youtube/v3/playlists'
-	const uri = `${base}/?channelId=${channelId}&part=snippet,contentDetails&key=${KEY}`
+	const maxResults = 25
+	const uri = `${base}/?channelId=${channelId}&maxResults=${maxResults}&part=snippet&key=${KEY}`
 	const res = await fetch(uri);
 	const json = await res.json();
-	debugger;
+	const items = json.items.map(({ id, snippet }) => ({ id, title: snippet.title }))
+	return items
 }
 
 module.exports = {

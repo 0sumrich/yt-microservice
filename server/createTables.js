@@ -74,4 +74,23 @@ const createStatsTable = async () => {
 	}
 };
 
-createNewVidsTable()
+const createPlaylistsTable = async () => {
+	const sql = `
+	CREATE TABLE IF NOT EXISTS playlists (
+	 id TEXT PRIMARY KEY,
+	 title TEXT,
+	 libraries INTEGER,
+	 age TEXT
+	);
+	`;
+	try {
+		const db = await Database.open(dbPath);
+		const run = await db.run(sql);
+		if (run) return true;
+	} catch (e) {
+		console.err(e);
+		return false;
+	}
+};
+
+createPlaylistsTable()

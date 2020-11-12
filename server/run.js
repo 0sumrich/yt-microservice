@@ -10,7 +10,7 @@
 	// const currIds = await currentIds();
 	const playlists = await getPlaylists()
 	// const stats = await getStats(currIds);
-	debugger
+	await writeCsv(playlists, path.join(__dirname, 'playlists.csv'))
 	// const vidsWeNeed = fullRss.items.filter(o => !currIds.includes(idFromUrl(o.link)))
 	// await writeCsv(vidsWeNeed, path.join(__dirname, 'toWrite.csv'))
 	// const ids = getCsv(path.join(__dirname, 'toWrite.csv')).map(o => idFromUrl(o.link))
