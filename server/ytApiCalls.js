@@ -37,7 +37,7 @@ async function getStats(ids) {
 		const uri = `https://www.googleapis.com/youtube/v3/videos?part=snippet,contentDetails,statistics&id=${id}&key=${KEY}`
 		const res = await fetch(uri)
 		const json = await res.json()
-		if(json.items.length<1){
+		if (json.items.length < 1) {
 			continue;
 		}
 		const o = json.items[0]
@@ -74,8 +74,25 @@ async function getInfo(ids) {
 	return info
 }
 
+// ['contentDetails'
+// 'id'
+// 'localizations'
+// 'player'
+// 'snippet'
+// 'status']
+
+async function getPlaylists() {
+	const channelId = 'UC4SYK8Q_wNFeiNmVG3quSRw'
+	const base = 'https://www.googleapis.com/youtube/v3/playlists'
+	const uri = `${base}/?channelId=${channelId}&part=snippet,contentDetails&key=${KEY}`
+	const res = await fetch(uri);
+	const json = await res.json();
+	debugger;
+}
+
 module.exports = {
 	getStats,
 	getInfo,
-	getRssVideos
+	getRssVideos,
+	getPlaylists
 };
