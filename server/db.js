@@ -264,7 +264,16 @@ async function insertToNewVids(arr) {
 
 async function insertToPlaylists(arr){
 	const db = await Database.open(dbPath)
-	const sql = `INSERT INTO playlists`
+	const headers = Object.keys(arr[0])
+	const headerString = headers.join(', ')
+	const headerQs = headers.map(x => '?'.join(', '))
+	const sql = `INSERT INTO playlists (${headerString}) values (${headerQs})`
+	let changes = 0
+	for (const row of arr){
+		const run = await db.run(sql, Object.values(row))
+		changes += run.changes
+	}
+	console.log(`${changes} row(s) changed`);
 }
 
 async function currNewVideosIds() {
@@ -304,4 +313,5 @@ module.exports = {
 	insertToNewVids,
 	checkForNewVids,
 	filteredRss,
+	insertToPlaylists
 };
