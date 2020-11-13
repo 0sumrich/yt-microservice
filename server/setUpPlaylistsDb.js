@@ -6,7 +6,7 @@
     const pls = getCsv(path.join(__dirname, 'playlists.csv'))
     pls.forEach(pl => {
         const bool = pl.libraries == 'yes' ? 1 : 0;
-        pls.libraries = bool
+        pl.libraries = bool
     })
     await insertToPlaylists(pls)
 })()
