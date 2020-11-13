@@ -93,4 +93,4 @@ const createPlaylistsTable = async () => {
 	}
 };
 
-createPlaylistsTable()
+module.exports = { createPlaylistsTable }
