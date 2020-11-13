@@ -9,3 +9,4 @@
 *  [/api/totals](/api/totals) - Updates the stats table with current stats, and returns historic views and number of videos
 *  [/api/videos](/api/videos) - Returns the videos table from sqlite database
 *  [/api/insertVids](/api/insertVids) - ?ids=comma,seperated,list of ids to insert videos by id
+*  [/api/audienceType](/api/audienceType) - returns an array of vidIds with the playlist title and audience

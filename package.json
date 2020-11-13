@@ -25,6 +25,6 @@
     "start": "node index",
     "debug": "node --inspect-brk index",
     "makeHtml": "node server/makeHtml",
-    "test": "node --inspect server/run"
+    "test": "node server/run"
   }
 }

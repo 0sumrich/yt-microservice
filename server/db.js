@@ -1,7 +1,7 @@
 const fs = require("fs");
 const path = require("path");
 const Database = require("sqlite-async");
-const { getStats, getInfo, getRssVideos } = require("./ytApiCalls");
+const { getStats, getInfo, getRssVideos, getPlaylistTitle } = require("./ytApiCalls");
 const getCsv = require("./getCsv");
 const { AsyncResource } = require("async_hooks");
 const dbPath = path.join(__dirname, "../", ".data", "main.db");
@@ -155,7 +155,7 @@ async function addNewVids(ids) {
 			try {
 				const row = await db.run(sql, Object.values(vids[i]));
 			} catch (e) {
-				return {notAdded: vids[i], error: e}
+				return { notAdded: vids[i], error: e }
 			}
 		}
 		const rows = await updateStats();
@@ -262,18 +262,37 @@ async function insertToNewVids(arr) {
 	console.log(`${changes} row(s) changed`);
 }
 
-async function insertToPlaylists(arr){
+async function insertToPlaylists(arr) {
 	const db = await Database.open(dbPath)
 	const headers = Object.keys(arr[0])
 	const headerString = headers.join(', ')
-	const headerQs = headers.map(x => '?'.join(', '))
-	const sql = `INSERT INTO playlists (${headerString}) values (${headerQs})`
+	const headerQs = headers.map(x => '?').join(', ')
+	const sql = `INSERT INTO playlists (${headerString}) VALUES (${headerQs})`
 	let changes = 0
-	for (const row of arr){
+	for (const row of arr) {
 		const run = await db.run(sql, Object.values(row))
 		changes += run.changes
 	}
 	console.log(`${changes} row(s) changed`);
+}
+
+async function insertPlaylistById(id, library = 0, age = '') {
+	// need to get title with ytApicall await getPlaylistTitle(id)
+	const title = await getPlaylistTitle(id)
+	const headers = ['id', 'title', 'libraries', 'age']
+	const headerString = headers.join(', ')
+	const headerQs = headers.map(x => '?').join(', ')
+	const sql = `INSERT INTO playlists (${headerString}) VALUES (${headerQs})`
+	const row = [id, title, library, age]
+	const run = await db.run(sql, row)
+	console.log(`${run.changes} row(s) changed`);
+}
+
+async function getPlaylistsFromDB() {
+	const db = await Database.open(dbPath)
+	const sql = 'select id, title, age from playlists where libraries=1;'
+	const rows = await db.all(sql)
+	return rows
 }
 
 async function currNewVideosIds() {
@@ -313,5 +332,6 @@ module.exports = {
 	insertToNewVids,
 	checkForNewVids,
 	filteredRss,
-	insertToPlaylists
+	insertToPlaylists,
+	getPlaylistsFromDB
 };

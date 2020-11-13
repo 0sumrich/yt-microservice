@@ -19,8 +19,9 @@ const {
 	checkForNewVids,
 	insertToNewVids,
 	filteredRss,
+	getPlaylistsFromDB
 } = require("./server/db");
-const { getStats } = require("./server/ytApiCalls");
+const { getStats, getVidIdsFromPlaylist } = require("./server/ytApiCalls");
 
 app.use(cors());
 // app.use(express.urlencoded({extended: true}))
@@ -106,6 +107,22 @@ app.get("/api/checkForNewVids", async (req, res) => {
 		res.json([]);
 	}
 });
+
+app.get('/api/audienceType', async (req, res) => {
+	try {
+		const pls = await getPlaylistsFromDB()
+		const data = []
+		for (const pl of pls) {
+			const { age, id, title } = pl
+			const vidIds = await getVidIdsFromPlaylist(id)
+			data.push(...vidIds.map(x => ({ vidId: x, age: age, playListTitle: title })))
+		}
+		res.json(data)
+	} catch (e) {
+		res.status(500)
+		res.send(e.message)
+	}
+})
 
 app.get('/api/testEmail', async (req, res) => {
 	try {

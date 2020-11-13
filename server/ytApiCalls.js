@@ -92,9 +92,43 @@ async function getPlaylists() {
 	return items
 }
 
+async function getPlaylistTitle(id) {
+	const base = 'https://www.googleapis.com/youtube/v3/playlists'
+	const uri = `${base}/?id=${id}&part=snippet&key=${KEY}`
+	const res = await fetch(uri);
+	const json = await res.json();
+	return json.items[0].snippet.title
+}
+
+async function getVidIdsFromPlaylist(id) {
+	// 'https://youtube.googleapis.com/youtube/v3/playlistItems?part=contentDetails&part=snippet&maxResults=25&playlistId=PLTJdPHAQ9nUoY1clKWfMbUE4m2bOF7npb&key=[YOUR_API_KEY]'
+	const base = 'https://youtube.googleapis.com/youtube/v3/playlistItems'
+	const maxResults = 25
+	let pageToken = false
+	const uri = pageToken ? 
+	`${base}/?playlistId=${id}&maxResults=${25}&part=snippet&pageToken=${pageToken}key=${KEY}` :
+	`${base}/?playlistId=${id}&maxResults=${25}&part=snippet&key=${KEY}`
+	const vidIds = []
+	const getInfo = async() => {
+		const res = await fetch(uri);
+		const json = await res.json();
+		for (const item of json.items){
+			vidIds.push(item.snippet.resourceId.videoId)
+		}
+		if (json.pageInfo.totalResults > vidIds.length) {
+			pageToken = json.nextPageToken
+			return await getInfo()
+		}
+	}
+	await getInfo()	
+	return vidIds
+}
+
 module.exports = {
 	getStats,
 	getInfo,
 	getRssVideos,
-	getPlaylists
+	getPlaylists,
+	getPlaylistTitle,
+	getVidIdsFromPlaylist
 };
