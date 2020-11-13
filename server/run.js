@@ -17,4 +17,5 @@
 		const vidIds = await getVidIdsFromPlaylist(id)
 		res.push(...vidIds.map(x => ({vidId: x, age: age, playListTitle: title})))
 	}
+  console.log(res)
 })();
