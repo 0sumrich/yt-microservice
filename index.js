@@ -22,8 +22,7 @@ const {
   getPlaylistsFromDB
 } = require("./server/db");
 const { getStats, getVidIdsFromPlaylist } = require("./server/ytApiCalls");
-
-const pls = getPlaylistsFromDB().then(res => console.log(res))
+const { debug } = require("console");
 
 app.use(cors());
 // app.use(express.urlencoded({extended: true}))
@@ -115,12 +114,20 @@ app.get("/api/audienceType", async (req, res) => {
     for (const pl of pls) {
       const { age, id, title } = pl;
       const vidIds = await getVidIdsFromPlaylist(id);
-      debugger;
-      data.push(
-        ...vidIds.map(x => ({ vidId: x, age: age, playListTitle: title }))
-      );
+      const resIds = data.map(o => o.vidId)
+      // data.push(
+      //   ...vidIds.map(x => ({ vidId: x, age: age, playListTitle: title }))
+      // );
+      for (const vidId of vidIds) {
+        if (!resIds.includes(vidId)) {
+          data.push({
+            vidId,
+            age,
+            playListTitle: title
+          })
+        }
+      }
     }
-    console.log(data);
     res.json(data);
   } catch (e) {
     res.status(500);
