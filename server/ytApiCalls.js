@@ -120,7 +120,6 @@ async function getVidIdsFromPlaylist(id) {
 			return await getInfo()
 		}
 	}
-	await getInfo()	
 	return vidIds
 }
 
