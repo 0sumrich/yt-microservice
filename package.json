@@ -23,7 +23,7 @@
   },
   "scripts": {
     "start": "node index",
-    "debug": "node --inspect-brk index",
+    "debug": "node --inspect index",
     "makeHtml": "node server/makeHtml",
     "test": "node server/run"
   }

@@ -109,27 +109,12 @@ app.get("/api/checkForNewVids", async (req, res) => {
 
 app.get("/api/audienceType", async (req, res) => {
   try {
-    const pls = await getPlaylistsFromDB();
-    const data = [];
+    const pls = await getPlaylistsFromDB()
+    const data = []
     for (const pl of pls) {
-      const { age, id, title } = pl;
-      const vidIds = await getVidIdsFromPlaylist(id);
-      console.log(vidIds.length)
-      console.log([...new Set(vidIds)].length)
-      const resIds = data.map(o => o.vidId)
-      // data.push(
-      //   ...vidIds.map(x => ({ vidId: x, age: age, playListTitle: title }))
-      // );
-      for (const vidId of vidIds) {
-        if (!resIds.includes(vidId)) {
-          data.push({
-            playlistId: id,
-            vidId,
-            age,
-            playListTitle: title
-          })
-        } 
-      }
+      const { age, id, title } = pl
+      const vidIds = await getVidIdsFromPlaylist(id)
+      data.push(...vidIds.map(x => ({ vidId: x, age: age, playListTitle: title })))
     }
     res.json(data);
   } catch (e) {

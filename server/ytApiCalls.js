@@ -105,21 +105,29 @@ async function getVidIdsFromPlaylist(id) {
 	const base = 'https://youtube.googleapis.com/youtube/v3/playlistItems'
 	const maxResults = 25
 	let pageToken = false
-	const uri = pageToken ? 
-	`${base}/?playlistId=${id}&maxResults=${25}&part=snippet&pageToken=${pageToken}key=${KEY}` :
-	`${base}/?playlistId=${id}&maxResults=${25}&part=snippet&key=${KEY}`
+	const getUri = pageToken => pageToken ?
+		`${base}/?playlistId=${id}&maxResults=${25}&part=snippet&pageToken=${pageToken}&key=${KEY}` :
+		`${base}/?playlistId=${id}&maxResults=${25}&part=snippet&key=${KEY}`
 	const vidIds = []
-	const getInfo = async() => {
+	const getInfo = async () => {
+		const uri = getUri(pageToken)
 		const res = await fetch(uri);
 		const json = await res.json();
-		for (const item of json.items){
+		if(!json.hasOwnProperty('items')){
+			debugger;
+		}
+		for (const item of json.items) {
 			vidIds.push(item.snippet.resourceId.videoId)
 		}
 		if (json.pageInfo.totalResults > vidIds.length) {
 			pageToken = json.nextPageToken
 			return await getInfo()
+		} else {
+			pageToken = false
+			return
 		}
 	}
+	await getInfo()
 	return vidIds
 }
 
