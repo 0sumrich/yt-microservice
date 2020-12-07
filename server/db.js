@@ -270,8 +270,13 @@ async function insertToPlaylists(arr) {
 	const sql = `INSERT INTO playlists (${headerString}) VALUES (${headerQs})`
 	let changes = 0
 	for (const row of arr) {
-		const run = await db.run(sql, Object.values(row))
-		changes += run.changes
+		try {
+			const run = await db.run(sql, Object.values(row))
+			changes += run.changes
+		} catch (e) {
+			console.log(e)
+			continue
+		}
 	}
 	console.log(`${changes} row(s) changed`);
 }

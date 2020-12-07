@@ -1,7 +1,7 @@
 (async () => {
 	const idFromUrl = (str) => str.slice("https://www.youtube.com/watch?v=".length);
 	const { currentIds, addNewVids, insertToPlaylists, getPlaylistsFromDB } = require('./db')
-	const { getRssVideos, getStats, getPlaylists, getPlaylistTitle, getVidIdsFromPlaylist } = require('./ytApiCalls')
+	const { getPlaylists, getPlaylistTitle, getVidIdsFromPlaylist } = require('./ytApiCalls')
 	const fs = require('fs')
 	const path = require('path')
 	const writeCsv = require('./writeCsv')
@@ -10,12 +10,12 @@
 	// const playlists = await getPlaylists()
 	// await writeCsv(playlists, path.join(__dirname, 'playlists.csv'))
 	// /Volumes/Documents/Documents/Coding/yt-microservice/server/playlists.csv
-	const pls = await getPlaylistsFromDB()
-	const res = []
-	for (const pl of pls ){
-		const {age, id, title} = pl
-		const vidIds = await getVidIdsFromPlaylist(id)
-		res.push(...vidIds.map(x => ({vidId: x, age: age, playListTitle: title})))
-	}
-	console.log(res.length)
+	const dbPls = await getPlaylistsFromDB()
+	const dbPlIds = dbPls.map(o => o.id)
+	// const ytPls = await getPlaylists()
+	// const missing = ytPls.filter(o => !dbPls.includes(o.id))
+	// await writeCsv(missing, 'missing.csv')
+	const pls = getCsv(path.join(__dirname, 'playlists.csv'))
+	// .filter(o => !dbPls.includes(o.id))
+	await insertToPlaylists(pls.filter(o => !dbPlIds.includes(o.id)))
 })();
