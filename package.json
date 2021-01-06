@@ -26,5 +26,8 @@
     "debug": "node --inspect index",
     "makeHtml": "node server/makeHtml",
     "test": "node server/run"
+  },
+  "engines": {
+    "node": "14.x"
   }
 }

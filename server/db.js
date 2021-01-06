@@ -293,6 +293,13 @@ async function insertPlaylistById(id, library = 0, age = '') {
 	console.log(`${run.changes} row(s) changed`);
 }
 
+async function getAllPlaylistsFromDB() {
+	const db = await Database.open(dbPath)
+	const sql = 'select id, title, age from playlists;'
+	const rows = await db.all(sql)
+	return rows
+}
+
 async function getPlaylistsFromDB() {
 	const db = await Database.open(dbPath)
 	const sql = 'select id, title, age from playlists where libraries=1;'
@@ -338,5 +345,6 @@ module.exports = {
 	checkForNewVids,
 	filteredRss,
 	insertToPlaylists,
-	getPlaylistsFromDB
+	getPlaylistsFromDB,
+	getAllPlaylistsFromDB
 };

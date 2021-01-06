@@ -19,9 +19,9 @@ const {
   checkForNewVids,
   insertToNewVids,
   filteredRss,
-  getPlaylistsFromDB
+  getAllPlaylistsFromDB
 } = require("./server/db");
-const { getStats, getVidIdsFromPlaylist } = require("./server/ytApiCalls");
+const { getStats, getVidIdsFromPlaylist, getPlaylists, getPlaylistTitle } = require("./server/ytApiCalls");
 const { debug } = require("console");
 
 app.use(cors());
@@ -109,7 +109,7 @@ app.get("/api/checkForNewVids", async (req, res) => {
 
 app.get("/api/audienceType", async (req, res) => {
   try {
-    const pls = await getPlaylistsFromDB()
+    const pls = await getAllPlaylistsFromDB()
     const data = []
     for (const pl of pls) {
       const { age, id, title } = pl
@@ -135,6 +135,15 @@ app.get("/api/testEmail", async (req, res) => {
     }
   }
 });
+
+app.get('/api/playlists', async (req, res) => {
+  const dbPls = await getAllPlaylistsFromDB()
+  const ytPls = await getPlaylists()
+  const dbIds = dbPls.map(o=>o.id)
+  // const missingIds = ytPls.map(o=>)
+  const missingPls = ytPls.filter(o => !dbIds.includes(o.id))
+  return res.json(missingPls)
+})
 
 app.get("/api/dl", (req, res) => {
   res.download(path.join(__dirname, ".data/main.db"));

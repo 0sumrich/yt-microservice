@@ -5,28 +5,13 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Attach to Chrome",
-            "port": 9229,
-            "request": "attach",
-            "type": "pwa-chrome",
-            "webRoot": "${workspaceFolder}/server",
-            "url": "http://localhost:3000"
-        },
-        
-        {
-            "name": "Launch curr file",
-            "program": "${file}",
+            "type": "pwa-node",
             "request": "launch",
+            "name": "Launch Program",
             "skipFiles": [
                 "<node_internals>/**"
             ],
-            "type": "pwa-node"
-        },
-        {
-            "command": "npm test",
-            "name": "Run npm test",
-            "request": "launch",
-            "type": "node-terminal"
-        },
+            "program": "${workspaceFolder}\\index.js"
+        }
     ]
 }
